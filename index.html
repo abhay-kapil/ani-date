@@ -110,16 +110,13 @@
             font-weight: 600;
             color: white;
             cursor: pointer;
-            transition: all 0.1s ease; /* Fast transition for running away */
+            transition: all 0.1s ease;
             font-size: 1.1rem;
-            position: relative; /* Starts normal, becomes absolute via JS */
+            position: relative;
         }
     </style>
 </head>
 <body>
-
-    <!-- Hidden YouTube Player for background track -->
-    <div id="youtube-player" style="display:none;"></div>
 
     <main class="glass-card w-[90%] max-w-lg rounded-[2rem] p-8 md:p-12 text-center relative z-10" id="card-container">
         
@@ -130,7 +127,8 @@
             
             <div class="flex justify-center items-center gap-6 mt-4 relative w-full h-20" id="button-container">
                 <button class="btn-yes" onclick="nextPage(1)">Yes! 😍</button>
-                <button class="btn-no" id="runaway-btn" onmouseover="dodgeCursor()" onclick="catchMeIfYouCan()">No 🙄</button>
+                <!-- Added ontouchstart so it dodges her finger on a mobile screen -->
+                <button class="btn-no" id="runaway-btn" onmouseover="dodgeCursor()" ontouchstart="dodgeCursor()" onclick="catchMeIfYouCan()">No 🙄</button>
             </div>
         </div>
 
@@ -154,7 +152,7 @@
             <button class="btn-yes" onclick="nextPage(3)">And then... 💫</button>
         </div>
 
-        <!-- PAGE 4: The Promise (Cooking!) -->
+        <!-- PAGE 4: The Promise -->
         <div id="page4" class="page">
             <h2 class="font-script text-4xl text-glow mb-6">My Promise 👨‍🍳</h2>
             <div class="font-serif text-lg leading-relaxed space-y-4 mb-8">
@@ -180,61 +178,31 @@
     </main>
 
     <script>
-        // --- YOUTUBE AUDIO SETUP ---
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        var player;
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('youtube-player', {
-                height: '0',
-                width: '0',
-                videoId: '36B-mADuDaQ', // Track ID
-                playerVars: {
-                    'autoplay': 0,
-                    'controls': 0,
-                    'showinfo': 0,
-                    'rel': 0,
-                    'loop': 1,
-                    'playlist': '36B-mADuDaQ'
-                }
-            });
-        }
-
-        // --- THE "RUNAWAY BUTTON" LOGIC ---
         const noBtn = document.getElementById('runaway-btn');
         
+        // Function to make the button jump away from the cursor or finger
         function dodgeCursor() {
-            // Change position to fixed so it can fly all over the screen
             noBtn.style.position = 'fixed';
             
-            // Calculate random coordinates within the window
             const maxX = window.innerWidth - noBtn.offsetWidth - 20;
             const maxY = window.innerHeight - noBtn.offsetHeight - 20;
             
             const randomX = Math.floor(Math.random() * maxX);
             const randomY = Math.floor(Math.random() * maxY);
             
-            noBtn.style.left = randomX + 'px';
-            noBtn.style.top = randomY + 'px';
+            noBtn.style.left = Math.max(10, randomX) + 'px';
+            noBtn.style.top = Math.max(10, randomY) + 'px';
         }
 
+        // Just in case they manage to click it despite it running away
         function catchMeIfYouCan() {
-            // Just in case she manages to click it (e.g. on a touchscreen)
             alert("Error 404: 'No' is not a valid option in this relationship! 😜 You HAVE to click YES!");
-            dodgeCursor(); // Run away immediately after the alert
+            dodgeCursor(); 
         }
 
-        // --- PAGE TRANSITION LOGIC ---
+        // Smooth transition to the next page
         function nextPage(currentPage) {
-            // Play song on the first "Yes" click
-            if (currentPage === 1 && player && typeof player.playVideo === 'function') {
-                player.playVideo();
-            }
-
-            // Hide the No button permanently once past page 1
+            // Hide the No button permanently after page 1
             if (currentPage === 1) {
                 noBtn.style.display = 'none';
             }
@@ -253,6 +221,7 @@
             }, 400); 
         }
 
+        // Reset the experience to start over
         function resetPages() {
             let lastDiv = document.getElementById('page5');
             lastDiv.style.opacity = '0';
@@ -260,10 +229,10 @@
             setTimeout(() => {
                 lastDiv.classList.remove('active');
                 
-                // Bring back page 1 and reset the No button
                 let firstDiv = document.getElementById('page1');
                 firstDiv.classList.add('active');
                 
+                // Reset the No button's position and visibility
                 noBtn.style.display = 'inline-block';
                 noBtn.style.position = 'relative';
                 noBtn.style.left = 'auto';
